@@ -704,13 +704,12 @@ if LOG_TIMINGS:
 
 # Define function spaces (equal order interpolation):
 cell = mesh.ufl_cell()
-FSM_POLYNOMIAL_DEGREE = 1
-Ve = VectorElement("Lagrange", cell, FSM_POLYNOMIAL_DEGREE)
-Qe = FiniteElement("Lagrange", cell, FSM_POLYNOMIAL_DEGREE)
+Ve = VectorElement("Lagrange", cell, BKG_POLYNOMIAL_DEGREE)
+Qe = FiniteElement("Lagrange", cell, BKG_POLYNOMIAL_DEGREE)
 VQe = MixedElement((Ve,Qe))
 # Mixed function space for velocity and pressure:
 V_fs = FunctionSpace(mesh,VQe)
-V_fs_scalar = FunctionSpace(mesh,"Lagrange",FSM_POLYNOMIAL_DEGREE)
+V_fs_scalar = FunctionSpace(mesh,"Lagrange",BKG_POLYNOMIAL_DEGREE)
 # Function space for mesh displacement field, 
 # which will be solved for separately in a 
 # quasi-direct scheme:
@@ -770,7 +769,7 @@ dv_ds = dv_dr # Only valid in solid
 
 
 # Displacement field used in the solid formulation
-u_s = uhat_old + DT*v_alpha
+u_s = uhat_old + DT*v
 u_s_alpha = x_alpha(timeInt_fs.ALPHA_F,u_s,uhat_old)
 
 # This is used to match u_s to set bc on the mesh motion subproblem
@@ -826,7 +825,7 @@ if FREEZE_SOLID:
 #### Mesh Motion Subproblem ###################################
 ###############################################################
 mesh_model = sm.JacobianStiffening(power=Constant(3))
-res_m = mesh_model.interiorResidual(uhat_alpha,duhat,dx=dy)
+res_m = mesh_model.interiorResidual(uhat,duhat,dx=dy)
 Dres_m = derivative(res_m, uhat)
 
 ###############################################################
